@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Light Scheduler</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap">
+    <style>
+        :root {
+            --primary-color: #4776E6;
+            --primary-gradient: linear-gradient(135deg, #4776E6 0%, #8E54E9 100%);
+            --secondary-color: #8E54E9;
+            --light-color: #FFD700;
+            --success-color: #2ecc71;
+            --error-color: #e74c3c;
+            --text-primary: #2c3e50;
+            --text-secondary: #7f8c8d;
+            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --input-border: #e0e0e0;
+            --input-focus: rgba(71, 118, 230, 0.2);
+            --border-radius: 16px;
+            --transition-speed: 0.3s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            background: var(--bg-gradient);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-primary);
+            padding: 20px;
+        }
+        
+        .container {
+            background-color: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            width: 90%;
+            max-width: 500px;
+            padding: 40px;
+            text-align: center;
+            transition: all var(--transition-speed) ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: var(--primary-gradient);
+        }
+        
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(71, 118, 230, 0.2);
+        }
+        
+        .header {
+            margin-bottom: 40px;
+            position: relative;
+        }
+        
+        .light-container {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(142, 84, 233, 0.3);
+        }
+        
+        .icon-light {
+            font-size: 40px;
+            color: white;
+            animation: pulse 2s infinite alternate;
+            position: relative;
+            z-index: 2;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            }
+            100% {
+                transform: scale(1.1);
+                text-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 30px rgba(255, 215, 0, 0.6);
+            }
+        }
+        
+        .light-container::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            z-index: 1;
+            animation: ripple 2s infinite;
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: scale(0.8);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
+        
+        h1 {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            font-size: 28px;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        
+        .form-container {
+            background-color: rgba(245, 247, 250, 0.5);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+            text-align: left;
+            position: relative;
+        }
+        
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 500;
+            color: var(--text-primary);
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        label::before {
+            content: '';
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            margin-right: 8px;
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        
+        label[for="onTime"]::before {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234776E6'%3E%3Cpath d='M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z'/%3E%3C/svg%3E");
+        }
+        
+        label[for="offTime"]::before {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%238E54E9'%3E%3Cpath d='M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z'/%3E%3C/svg%3E");
+        }
+        
+        .input-wrapper {
+            position: relative;
+        }
+        
+        input[type="time"] {
+            width: 100%;
+            padding: 15px 15px 15px 45px;
+            border: 2px solid var(--input-border);
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all var(--transition-speed);
+            box-sizing: border-box;
+            color: var(--text-primary);
+            font-family: 'Poppins', sans-serif;
+            background-color: white;
+        }
+        
+        input[type="time"]:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px var(--input-focus);
+        }
+        
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            color: var(--primary-color);
+            pointer-events: none;
+        }
+        
+        button {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 16px 30px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all var(--transition-speed);
+            width: 100%;
+            margin-top: 10px;
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: all 0.6s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(71, 118, 230, 0.3);
+        }
+        
+        button:hover::before {
+            left: 100%;
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button svg {
+            margin-right: 8px;
+        }
+        
+        .connection-status {
+            margin-top: 25px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 15px;
+            background-color: rgba(245, 247, 250, 0.7);
+            border-radius: 20px;
+            width: fit-content;
+            margin: 25px auto 0;
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+            background-color: var(--error-color);
+            transition: background-color var(--transition-speed);
+            position: relative;
+        }
+        
+        .status-indicator.connected {
+            background-color: var(--success-color);
+        }
+        
+        .status-indicator.connected::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: var(--success-color);
+            z-index: -1;
+            opacity: 0.5;
+            animation: pulse-status 2s infinite;
+        }
+        
+        @keyframes pulse-status {
+            0% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+            70% {
+                transform: scale(2);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0;
+            }
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--primary-gradient);
+            color: white;
+            padding: 15px 25px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transform: translateX(200%);
+            transition: transform var(--transition-speed) ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification::before {
+            content: '✓';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            margin-right: 10px;
+            text-align: center;
+            line-height: 20px;
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 30px 20px;
+            }
+            
+            .form-container {
+                padding: 20px 15px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .light-container {
+                width: 70px;
+                height: 70px;
+            }
+            
+            .icon-light {
+                font-size: 35px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="light-container">
+                <div class="icon-light">💡</div>
+            </div>
+            <h1>Smart Light Scheduler</h1>
+            <p class="subtitle">Schedule your lights to turn on and off automatically</p>
+        </div>
+        
+        <div class="form-container">
+            <div class="form-group">
+                <label for="onTime">Turn ON at:</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">⏰</span>
+                    <input type="time" id="onTime">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="offTime">Turn OFF at:</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">⏱️</span>
+                    <input type="time" id="offTime">
+                </div>
+            </div>
+        </div>
+        
+        <button onclick="submitSchedule()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 12L10 17L20 7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Save Schedule
+        </button>
+        
+        <div class="connection-status">
+            <div class="status-indicator" id="statusIndicator"></div>
+            <span id="statusText">Connecting...</span>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification">Schedule saved successfully!</div>
+    
+    <script>
+        let socket = new WebSocket("ws://localhost:8765");
+        const statusIndicator = document.getElementById('statusIndicator');
+        const statusText = document.getElementById('statusText');
+        const notification = document.getElementById('notification');
+        
+        socket.onopen = () => {
+            console.log("✅ WebSocket Connected!");
+            statusIndicator.classList.add('connected');
+            statusText.textContent = "Connected";
+        };
+        
+        socket.onclose = () => {
+            statusIndicator.classList.remove('connected');
+            statusText.textContent = "Disconnected";
+        };
+        
+        socket.onerror = () => {
+            statusIndicator.classList.remove('connected');
+            statusText.textContent = "Connection Error";
+        };
+        
+        function submitSchedule() {
+            const onTime = document.getElementById('onTime').value;
+            const offTime = document.getElementById('offTime').value;
+            
+            if (onTime) {
+                socket.send(`${onTime} ON`);
+            }
+            if (offTime) {
+                socket.send(`${offTime} OFF`);
+            }
+            
+            // Show notification
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
