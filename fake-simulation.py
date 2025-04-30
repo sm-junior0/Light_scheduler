@@ -1,4 +1,6 @@
 # fake-simulation.py
+import utils.transport
+import utils.session
 import serial
 import serial.threaded
 import time
